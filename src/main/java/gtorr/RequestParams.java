@@ -1,5 +1,6 @@
 package gtorr;
 
+import java.util.Arrays;
 import java.util.List;
 
 class RequestParams{
@@ -10,6 +11,12 @@ class RequestParams{
         return chunkId;
     }
 
+    public byte[] chunk;
+
+    public byte[] getChunk() {
+        return chunk;
+    }
+
     @Override
     public String toString() {
         return "RequestParams{" +
@@ -17,6 +24,10 @@ class RequestParams{
                 ", bytesHash='" + bytesHash + '\'' +
                 ", validityHashList=" + validityHashList +
                 '}';
+    }
+
+    public void setChunk(byte[] chunk) {
+        this.chunk = chunk;
     }
 
     public void setChunkId(long chunkId) {

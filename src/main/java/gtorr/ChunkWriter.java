@@ -37,14 +37,14 @@ public class ChunkWriter implements Runnable {
      * =============================================++++++++++=============++++++++============+++++++++++============
      */
 
-    static MerkleTree seederMerkleTree;
-    static MerkleNode seederRoot;
-    static List<MerkleNode> seederLeaves;
-    static Queue<Integer> seederChunkIdQueue = new LinkedList<>();
-    static long seederFileLength;
+    static public MerkleTree seederMerkleTree;
+    static public MerkleNode seederRoot;
+    static public List<MerkleNode> seederLeaves;
+    static public Queue<Integer> seederChunkIdQueue = new LinkedList<>();
+    static public long seederFileLength;
 
 
-    static void seeder() throws IOException, NoSuchAlgorithmException {
+    static public void seeder() throws IOException, NoSuchAlgorithmException {
 
         seederMerkleTree = new MerkleTree("r.mp4", s_chunkSize);
         RandomAccessFile r = new RandomAccessFile(new File("r.mp4"), "rw");
@@ -83,7 +83,7 @@ public class ChunkWriter implements Runnable {
         }
     }
 
-    static InputParams getRandomChunk() {
+    static public InputParams getRandomChunk() {
         InputParams params = null;
         if (seederChunkIdQueue.size() == 0) return params;
 
