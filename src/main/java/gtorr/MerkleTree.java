@@ -92,6 +92,27 @@ public class MerkleTree {
         return mRoot;
     }
 
+    private MerkleNode getBrother(MerkleNode node) {
+        if (node == null) return null;
+        MerkleNode parent = node.getParent();
+        if (parent == null) return null;
+        MerkleNode left = parent.getLeft();
+        MerkleNode right = parent.getRight();
+
+        if (left.getHash().equals(node.getHash())) return right;
+        return left;
+    }
+
+    private MerkleNode getUncle(MerkleNode node) {
+        MerkleNode parent = node.getParent();
+        return getBrother(parent);
+    }
+
+    private MerkleNode getParent(MerkleNode current/*, MerkleNode node*/) {
+        if (current == null) return null;
+        return current.getParent();
+    }
+
     private MerkleNode buildTreeFromFile(String filePath) throws IOException, NoSuchAlgorithmException {
         List<byte[]> fileChunks = divideFileIntoChunks(filePath);
         mLeafNodes = createLeafNodes(fileChunks);
@@ -189,27 +210,6 @@ public class MerkleTree {
 
             System.out.println();
         }
-    }
-
-    private MerkleNode getBrother(MerkleNode node) {
-        if (node == null) return null;
-        MerkleNode parent = node.getParent();
-        if (parent == null) return null;
-        MerkleNode left = parent.getLeft();
-        MerkleNode right = parent.getRight();
-
-        if (left.getHash().equals(node.getHash())) return right;
-        return left;
-    }
-
-    private MerkleNode getUncle(MerkleNode node) {
-        MerkleNode parent = node.getParent();
-        return getBrother(parent);
-    }
-
-    private MerkleNode getParent(MerkleNode current/*, MerkleNode node*/) {
-        if (current == null) return null;
-        return current.getParent();
     }
 
     void print(MerkleNode node) throws NoSuchAlgorithmException {
