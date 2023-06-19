@@ -8,12 +8,14 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-class MerkleNode {
+class MerkleNode implements Serializable {
     private String mHash;
     private byte[] mChunkBytes;
     private MerkleNode mLeft;
     private MerkleNode mRight;
     private MerkleNode mParent;
+
+    public MerkleNode(){}
 
     public MerkleNode(byte[] chunkBytes,String hash) {
         this.mChunkBytes = chunkBytes;
@@ -215,7 +217,7 @@ public class MerkleTree {
     void print(MerkleNode node) throws NoSuchAlgorithmException {
         if (node == null) return;
         print(node.getLeft());
-        List<MerkleNode> x = getValidityHash(node);
+        List<ValidityHash> x = getValidityHash(node);
 
         boolean v = verifyTree(x, node);
         if (v)
@@ -225,24 +227,24 @@ public class MerkleTree {
         print(node.getRight());
     }
 
-    public List<MerkleNode> getValidityHash(MerkleNode node) {
-        List<MerkleNode> validityHashes = new ArrayList<>();
+    public List<ValidityHash> getValidityHash(MerkleNode node) {
+        List<ValidityHash> validityHashes = new ArrayList<>();
         if (getBrother(node) != null)
-            validityHashes.add(getBrother(node));
+            validityHashes.add(new ValidityHash(getBrother(node).getHash(),getBrother(node).getIsLeft()));
 
         while (getParent(node) != null) {
             MerkleNode uncle = getUncle(node);
             if (uncle != null)
-                validityHashes.add(uncle);
+                validityHashes.add(new ValidityHash(uncle.getHash(),uncle.getIsLeft()));
             node = uncle;
         }
         return validityHashes;
     }
 
-    boolean verifyTree(List<MerkleNode> validityHash, MerkleNode node) throws NoSuchAlgorithmException {
+    boolean verifyTree(List<ValidityHash> validityHash, MerkleNode node) throws NoSuchAlgorithmException {
         MerkleNode currNode = node;
 
-        for (MerkleNode x : validityHash) {
+        for (ValidityHash x : validityHash) {
             if (x.getHash().equals(mRoot.getHash())) {
                 break;
             }

@@ -11,10 +11,9 @@ public class ChunkAuthenticator {
     }
 
 
-    boolean checkIfChunkIsSane(List<MerkleNode> validityHash, MerkleNode node) throws NoSuchAlgorithmException {
+    boolean checkIfChunkIsSane(List<ValidityHash> validityHash, MerkleNode node) throws NoSuchAlgorithmException {
         MerkleNode currNode = node;
-        System.out.println(node.getHash());
-        for (MerkleNode x : validityHash) {
+        for (ValidityHash x : validityHash) {
             if (x!=null && x.getHash().equals(mRoot.getHash())) {
                 break;
             }

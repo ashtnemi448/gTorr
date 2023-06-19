@@ -57,7 +57,7 @@ public class GTorrApplication {
         }
 
         executor.shutdown();
-
+        System.out.println("COMPLETE");
     }
 }
 

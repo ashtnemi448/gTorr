@@ -1,11 +1,15 @@
 package gtorr;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 class ResponseParam {
     String mHash;
     public byte[] mChunk;
-    List<MerkleNode> mValidityHashList;
+
+    @JsonProperty
+    List<ValidityHash> mValidityHashList;
 
     public byte[] getChunk() {
         return mChunk;
@@ -28,11 +32,11 @@ class ResponseParam {
         this.mHash = hash;
     }
 
-    public List<MerkleNode> getValidityHashList() {
+    public List<ValidityHash> getValidityHashList() {
         return mValidityHashList;
     }
 
-    public void setValidityHashList(List<MerkleNode> validityHashList) {
+    public void setValidityHashList(List<ValidityHash> validityHashList) {
         this.mValidityHashList = validityHashList;
     }
 }

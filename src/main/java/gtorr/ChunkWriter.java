@@ -72,9 +72,9 @@ public class ChunkWriter implements Runnable {
         public byte[] chunk;
 
         public MerkleNode node;
-        public List<MerkleNode> validityHashes;
+        public List<ValidityHash> validityHashes;
 
-        public InputParams(int chunkId, String chunkHash, byte[] chunk, List<MerkleNode> validityHashes, MerkleNode node) {
+        public InputParams(int chunkId, String chunkHash, byte[] chunk, List<ValidityHash> validityHashes, MerkleNode node) {
             this.chunkId = chunkId;
             this.chunkHash = chunkHash;
             this.chunk = chunk;
