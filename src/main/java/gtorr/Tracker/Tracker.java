@@ -49,6 +49,16 @@ public class Tracker {
         return mHosts;
     }
 
+    @Override
+    public String toString() {
+        return "Tracker{" +
+                "mFileHash='" + mFileHash + '\'' +
+                ", mFileNames=" + mFileNames +
+                ", mFileSize=" + mFileSize +
+                ", mHosts=" + mHosts +
+                '}';
+    }
+
     public void setFileHash(String fileCkSum) {
         this.mFileHash = fileCkSum;
     }

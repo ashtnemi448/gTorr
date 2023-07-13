@@ -1,8 +1,14 @@
 package gtorr.Tracker;
 
+import gtorr.GTorrApplication;
+import gtorr.Util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -22,12 +28,14 @@ public class TrackerService {
     }
 
     public Long getFileSize(String fileCkSum) {
+        Tracker tracker = mTrackerRepository.findById(fileCkSum).get();
+
         return mTrackerRepository.findById(fileCkSum).get().getFileSize();
     }
 
-    public void addSeeder(String file, String fileHash, String host) {
+    public void addSeeder(String file, String fileHash, String host) throws IOException {
         Tracker tracker = mTrackerRepository.findById(fileHash).orElse(null);
-        System.out.println(fileHash + " " + file);
+
         if (tracker != null) {
             tracker.getHosts().add(host);
             tracker.getFileNames().add(file);
@@ -35,6 +43,10 @@ public class TrackerService {
         } else {
             Tracker newTracker = new Tracker();
             newTracker.setFileHash(fileHash);
+
+            Long numOfChunks = Utils.getNumberOfChunks(file);
+
+            newTracker.setFileSize(numOfChunks);
             newTracker.getFileNames().add(file);
 
             newTracker.getHosts().add(host);

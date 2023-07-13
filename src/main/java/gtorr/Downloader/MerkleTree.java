@@ -1,6 +1,8 @@
 package gtorr.Downloader;
 
+import gtorr.GTorrApplication;
 import gtorr.Util.HashUtils;
+import gtorr.Util.Utils;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -111,8 +113,9 @@ public class MerkleTree {
     private List<byte[]> divideFileIntoChunks(String filePath) throws IOException {
         Path path = Path.of(filePath);
         byte[] fileData = Files.readAllBytes(path);
+        int numOfChunks = Math.toIntExact(Utils.getNumberOfChunks(filePath));
+
         int chunkSize = mChunkSize;
-        int numOfChunks = (int) Math.ceil((double) fileData.length / chunkSize);
         List<byte[]> chunks = new ArrayList<>();
 
         for (int i = 0; i < numOfChunks; i++) {
@@ -153,8 +156,6 @@ public class MerkleTree {
                 System.out.println("Uncle: " + uncle.getHash());
             else
                 System.out.println("No uncle exists for this node.");
-
-            System.out.println();
         }
     }
 
@@ -206,7 +207,7 @@ public class MerkleTree {
 
     /*================================= TESTING ================================ */
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
-        MerkleTree merkleTree = new MerkleTree("r.mp4", 1000000);
+        MerkleTree merkleTree = new MerkleTree("r.mp4", GTorrApplication.s_chunkSize);
         List<MerkleNode> leaves = merkleTree.getLeaves();
         for (int i = 0; i < leaves.size(); i++) {
             if (!merkleTree.verifyTree(merkleTree.getValidityHash(leaves.get(i)),leaves.get(i))) {

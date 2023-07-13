@@ -3,8 +3,10 @@ package gtorr.Seeder;
 import gtorr.Downloader.RequestParam;
 import gtorr.Downloader.MerkleNode;
 import gtorr.Downloader.MerkleTree;
+import gtorr.GTorrApplication;
 import gtorr.Tracker.HostService;
 import gtorr.Tracker.TrackerService;
+import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -14,33 +16,27 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.nio.ByteBuffer;
-import java.nio.channels.SeekableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.zip.CRC32;
 
 @RestController
 @Component
 public class Seeder {
 
-    @Autowired
-    static
-    Environment environment;
     private static final HashMap<String, MerkleTree> sFileTreeMap = new HashMap<>();
 
     @Autowired
-    public static void initSeeder(HostService hostService, TrackerService trackerService) throws IOException, NoSuchAlgorithmException {
+    public  void initSeeder(HostService hostService, TrackerService trackerService) throws IOException, NoSuchAlgorithmException {
         List<String> filesToSeed = getFilesToSeed();
-
+        System.out.println(filesToSeed);
+        String serverPort = "7777";
         for (String file : filesToSeed) {
-            System.out.println("port" + environment.getProperty("local.server.port"));
+
             if (!sFileTreeMap.containsKey(file)) {
-                sFileTreeMap.put(file, new MerkleTree(file, 1000000));
+                sFileTreeMap.put(file, new MerkleTree(file, GTorrApplication.s_chunkSize));
             }
-            trackerService.addSeeder(file, sFileTreeMap.get(file).getRoot().getHash(), getPrivateIp() + ":" + environment.getProperty("local.server.port"));
+            System.out.println(" file - "+ file + " hash - " + sFileTreeMap.get(file).getRoot().getHash());
+            trackerService.addSeeder(file, sFileTreeMap.get(file).getRoot().getHash(), getPrivateIp() + ":" + serverPort);
         }
     }
 
@@ -67,11 +63,13 @@ public class Seeder {
     public static List<String> getFilesToSeed() {
         List<String> filesToUpload = new ArrayList<>();
         String dirPath = System.getProperty("user.dir");
-        System.out.println(dirPath);
+
         File path = new File(dirPath);
         File[] files = path.listFiles();
         for (int i = 0; i < Objects.requireNonNull(files).length; i++) {
+
             if (files[i].isFile() && !files[i].isDirectory()) {
+
                 filesToUpload.add(files[i].getName());
             }
         }
@@ -81,6 +79,7 @@ public class Seeder {
     public ResponseParam prepareResponse(RequestParam requestParam) throws IOException, NoSuchAlgorithmException {
         ResponseParam responseParam = new ResponseParam();
         MerkleTree tree = sFileTreeMap.get(requestParam.getFileName());
+
         MerkleNode node = tree.getLeaves().get(requestParam.getChunkId());
 
         responseParam.setChunk(node.getChunkBytes());

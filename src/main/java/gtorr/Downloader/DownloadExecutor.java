@@ -35,7 +35,7 @@ public class DownloadExecutor implements Runnable {
 
         if (response.getStatusCode().is2xxSuccessful()) {
             ResponseParam responsePayload = response.getBody();
-            ChunkWriterV2 chunkWriterV2h = null;
+            ChunkWriterV2 chunkWriterV2h;
             try {
                 chunkWriterV2h = new ChunkWriterV2(responsePayload, mRequestParam);
                 chunkWriterV2h.writeChunk();

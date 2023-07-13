@@ -35,7 +35,7 @@ public class RequestParam {
     }
 
     public void setHost(String host) {
-        this.mHost = mHost;
+        this.mHost = host;
     }
     
     @Override

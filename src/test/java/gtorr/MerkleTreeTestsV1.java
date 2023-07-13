@@ -23,7 +23,7 @@ public class MerkleTreeTestsV1 {
 
         MerkleTree merkleTree = new MerkleTree("src/test/java/gtorr/TestFiles/SmallInput.txt", 1);
         merkleTree.setChunkSize(10);
-        System.out.println(merkleTree.getRoot());
+
         Assert.assertEquals(merkleTree.getRoot(), "62af5c3cb8da3e4f25061e829ebeea5c7513c54949115b1acc225930a90154da");
 
         List<String> leaves = new ArrayList<>();

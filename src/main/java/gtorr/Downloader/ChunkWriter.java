@@ -1,5 +1,7 @@
 package gtorr.Downloader;
 
+import gtorr.GTorrApplication;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -9,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ChunkWriter implements Runnable {
-    static int s_chunkSize = 1000000;
+    static int s_chunkSize = GTorrApplication.s_chunkSize;
     int mChunkId;
     RandomAccessFile mWriteFile;
     byte[] mChunk;
@@ -24,6 +26,7 @@ public class ChunkWriter implements Runnable {
     public void run() {
         synchronized (mWriteFile) {
             try {
+
                 mWriteFile.seek(mChunkId);
                 mWriteFile.write(mChunk);
 

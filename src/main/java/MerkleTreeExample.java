@@ -1,3 +1,5 @@
+import gtorr.GTorrApplication;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -65,7 +67,7 @@ class MerkleTree {
 public class MerkleTreeExample {
     public static void main(String[] args) {
         String filePath = "data1.txt";
-        int chunkSize = 1; // 1MB chunk size
+        int chunkSize = GTorrApplication.s_chunkSize; // 1MB chunk size
 
         try {
             byte[] fileBytes = readFileBytes(filePath);
