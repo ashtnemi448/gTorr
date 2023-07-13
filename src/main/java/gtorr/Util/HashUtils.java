@@ -2,6 +2,8 @@ package gtorr.Util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
+import java.util.Random;
 
 public class HashUtils {
 
@@ -20,4 +22,15 @@ public class HashUtils {
         }
         return sb.toString();
     }
+
+    public static <T> T getRandomObject(HashSet<T> hashSet) {
+        if (hashSet.isEmpty()) {
+            return null;
+        }
+
+        int randomIndex = new Random().nextInt(hashSet.size());
+        T[] array = (T[]) hashSet.toArray();
+        return array[randomIndex];
+    }
+    
 }

@@ -16,7 +16,7 @@ public class Utils {
         T[] array = (T[]) set.toArray();
         Random random = new Random();
         int randomIndex = random.nextInt(array.length);
-        return array[0];
+        return array[randomIndex];
     }
 
     public static Long  getNumberOfChunks(String file) throws IOException {

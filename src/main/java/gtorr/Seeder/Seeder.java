@@ -25,19 +25,35 @@ public class Seeder {
 
     private static final HashMap<String, MerkleTree> sFileTreeMap = new HashMap<>();
 
+    public static synchronized void cacheFile(String file) throws IOException, NoSuchAlgorithmException {
+        if (!sFileTreeMap.containsKey(file)) {
+            System.out.println("Caching new file");
+            sFileTreeMap.put(file, new MerkleTree( System.getProperty("user.dir") + "/" + file, GTorrApplication.s_chunkSize));
+        } else {
+            System.out.println("Contains new file");        }
+    }
+
+
     @Autowired
-    public  void initSeeder(HostService hostService, TrackerService trackerService) throws IOException, NoSuchAlgorithmException {
+    public void initSeeder(HostService hostService, TrackerService trackerService) throws IOException, NoSuchAlgorithmException {
         List<String> filesToSeed = getFilesToSeed();
         System.out.println(filesToSeed);
-        String serverPort = "7777";
+        String serverPort = "9090";
         for (String file : filesToSeed) {
 
-            if (!sFileTreeMap.containsKey(file)) {
-                sFileTreeMap.put(file, new MerkleTree(file, GTorrApplication.s_chunkSize));
-            }
-            System.out.println(" file - "+ file + " hash - " + sFileTreeMap.get(file).getRoot().getHash());
+            Seeder.cacheFile(file);
+            System.out.println(" file - " + file + " hash - " + sFileTreeMap.get(file).getRoot().getHash());
             trackerService.addSeeder(file, sFileTreeMap.get(file).getRoot().getHash(), getPrivateIp() + ":" + serverPort);
         }
+    }
+
+    @Autowired
+    public static  void addSeeder(TrackerService trackerService, String file) throws IOException, NoSuchAlgorithmException {
+        String serverPort = "9090";
+
+        Seeder.cacheFile(file);
+        System.out.println(" Seeding new file - " + file + " hash - " + sFileTreeMap.get(file).getRoot().getHash());
+        trackerService.addSeeder(file, sFileTreeMap.get(file).getRoot().getHash(), getPrivateIp() + ":" + serverPort);
     }
 
     private static String getPrivateIp() {
@@ -88,4 +104,6 @@ public class Seeder {
         responseParam.setRootHash(tree.getRoot().getHash());
         return responseParam;
     }
+
+
 }

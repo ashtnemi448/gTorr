@@ -22,7 +22,7 @@ public class ChunkWriterV2 {
 
     public ChunkWriterV2(ResponseParam responseParam, RequestParam requestParam) throws FileNotFoundException {
         if (mFileHashMap.get(requestParam.getFileName()) == null) {
-            mFileHashMap.put(requestParam.getFileName(), new RandomAccessFile(new File("Torrent-"+requestParam.getFileName()), "rw"));
+            mFileHashMap.put(requestParam.getFileName(), new RandomAccessFile(new File("Torrent-" + requestParam.getFileName()), "rw"));
         }
         this.mWriteFile = mFileHashMap.get(requestParam.getFileName());
         this.mResponseParam = responseParam;
@@ -34,16 +34,14 @@ public class ChunkWriterV2 {
         if (!ChunkAuthenticator.checkIfChunkIsSane(mResponseParam.getValidityHashList(), new MerkleNode(mResponseParam.getHash()), new MerkleNode(mResponseParam.getRootHash()))) {
             System.out.println("Invalid Chunk " + mRequestParam.getChunkId());
             return;
-        } else {
-            System.out.println("Valid Chunk " + mRequestParam.getChunkId());
         }
 
-            try {
-                mWriteFile.seek((long) mRequestParam.getChunkId() * GTorrApplication.s_chunkSize);
-                mWriteFile.write(mResponseParam.mChunk);
-            } catch (Exception ignored) {
-            }
+        try {
+            mWriteFile.seek((long) mRequestParam.getChunkId() * GTorrApplication.s_chunkSize);
+            mWriteFile.write(mResponseParam.mChunk);
+        } catch (Exception ignored) {
         }
+    }
 
 }
 // abc def ghi jkl mno
