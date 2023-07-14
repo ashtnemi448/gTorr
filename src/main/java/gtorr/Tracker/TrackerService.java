@@ -1,18 +1,12 @@
 package gtorr.Tracker;
 
-import gtorr.GTorrApplication;
 import gtorr.Util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TrackerService {
@@ -52,5 +46,9 @@ public class TrackerService {
             newTracker.getHosts().add(host);
             mTrackerRepository.save(newTracker);
         }
+    }
+
+    public List<Tracker> findAllTrackers() {
+        return mTrackerRepository.findAll();
     }
 }

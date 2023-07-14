@@ -30,11 +30,11 @@ public class Downloader {
     }
 
     @RequestMapping(value = "download/{file}/{fileCkSum}")
-    public void download(@PathVariable("fileCkSum") String fileHash, @PathVariable("file") String fileName) throws IOException, NoSuchAlgorithmException, InterruptedException {
-        HashSet<String> hosts = mTrackerService.getHosts(fileHash);
-        System.out.println("Hosts " + hosts);
-        int totalChunks = Math.toIntExact(mTrackerService.getFileSize(fileHash));
 
+    public void download(@PathVariable("fileCkSum") String fileHash, @PathVariable("file") String fileName) throws IOException, NoSuchAlgorithmException, InterruptedException {
+
+        HashSet<String> hosts = mTrackerService.getHosts(fileHash);
+        int totalChunks = Math.toIntExact(mTrackerService.getFileSize(fileHash));
         startDownload(fileName, fileHash, totalChunks, hosts);
     }
 
@@ -54,6 +54,11 @@ public class Downloader {
 
             executor.execute(new DownloadExecutor(requestParam));
         }
-//        Seeder.addSeeder(mTrackerService,"Torrent-"+fileName);
+        executor.shutdown();
+        // Wait for all tasks to complete
+        while (!executor.isTerminated()) {}
+
+        // Seed the newly downloaded file
+        Seeder.addSeeder(mTrackerService,"Torrent-"+fileName);
     }
 }

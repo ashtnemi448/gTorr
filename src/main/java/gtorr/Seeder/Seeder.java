@@ -27,8 +27,7 @@ public class Seeder {
 
     public static synchronized void cacheFile(String file) throws IOException, NoSuchAlgorithmException {
         if (!sFileTreeMap.containsKey(file)) {
-            System.out.println("Caching new file");
-            sFileTreeMap.put(file, new MerkleTree( System.getProperty("user.dir") + "/" + file, GTorrApplication.s_chunkSize));
+            sFileTreeMap.put(file, new MerkleTree( file, GTorrApplication.s_chunkSize));
         } else {
             System.out.println("Contains new file");        }
     }
@@ -48,7 +47,7 @@ public class Seeder {
     }
 
     @Autowired
-    public static  void addSeeder(TrackerService trackerService, String file) throws IOException, NoSuchAlgorithmException {
+    public static void addSeeder(TrackerService trackerService, String file) throws IOException, NoSuchAlgorithmException {
         String serverPort = "9090";
 
         Seeder.cacheFile(file);
