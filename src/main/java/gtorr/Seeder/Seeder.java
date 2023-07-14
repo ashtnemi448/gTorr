@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.security.NoSuchAlgorithmException;
+
+import org.springframework.boot.autoconfigure.web.ServerProperties;
+
 import java.util.*;
 
 @RestController
@@ -24,12 +27,12 @@ import java.util.*;
 public class Seeder {
 
     private static final HashMap<String, MerkleTree> sFileTreeMap = new HashMap<>();
-
     public static synchronized void cacheFile(String file) throws IOException, NoSuchAlgorithmException {
         if (!sFileTreeMap.containsKey(file)) {
-            sFileTreeMap.put(file, new MerkleTree( file, GTorrApplication.s_chunkSize));
+            sFileTreeMap.put(file, new MerkleTree(file, GTorrApplication.s_chunkSize));
         } else {
-            System.out.println("Contains new file");        }
+            System.out.println("Contains new file");
+        }
     }
 
 
@@ -37,22 +40,19 @@ public class Seeder {
     public void initSeeder(HostService hostService, TrackerService trackerService) throws IOException, NoSuchAlgorithmException {
         List<String> filesToSeed = getFilesToSeed();
         System.out.println(filesToSeed);
-        String serverPort = "9090";
         for (String file : filesToSeed) {
 
             Seeder.cacheFile(file);
             System.out.println(" file - " + file + " hash - " + sFileTreeMap.get(file).getRoot().getHash());
-            trackerService.addSeeder(file, sFileTreeMap.get(file).getRoot().getHash(), getPrivateIp() + ":" + serverPort);
+            trackerService.addSeeder(file, sFileTreeMap.get(file).getRoot().getHash(), getPrivateIp() + ":" + GTorrApplication.s_port);
         }
     }
 
     @Autowired
     public static void addSeeder(TrackerService trackerService, String file) throws IOException, NoSuchAlgorithmException {
-        String serverPort = "9090";
-
         Seeder.cacheFile(file);
         System.out.println(" Seeding new file - " + file + " hash - " + sFileTreeMap.get(file).getRoot().getHash());
-        trackerService.addSeeder(file, sFileTreeMap.get(file).getRoot().getHash(), getPrivateIp() + ":" + serverPort);
+        trackerService.addSeeder(file, sFileTreeMap.get(file).getRoot().getHash(), getPrivateIp() + ":" +  GTorrApplication.s_port);
     }
 
     private static String getPrivateIp() {

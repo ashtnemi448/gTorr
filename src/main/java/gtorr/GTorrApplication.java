@@ -7,6 +7,7 @@ import gtorr.Tracker.Host;
 import gtorr.Tracker.HostService;
 import gtorr.Tracker.Tracker;
 import gtorr.Tracker.TrackerService;
+import org.springframework.core.env.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,7 +27,9 @@ public class GTorrApplication {
     static private  PersonsDoa personsDoa;
     static private TrackerService trackerService;
     static private HostService hostService;
+    static Environment mEnvironment;
 
+    static public String s_port = "9090";
     static public int s_chunkSize = 1000000;
 
     @Autowired
@@ -34,7 +37,6 @@ public class GTorrApplication {
         this.personsDoa = personsDoa;
         this.trackerService = trackerService;
         this.hostService = hostService;
-
     }
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
