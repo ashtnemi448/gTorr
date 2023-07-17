@@ -6,6 +6,8 @@ import gtorr.Downloader.MerkleTree;
 import gtorr.GTorrApplication;
 import gtorr.Tracker.HostService;
 import gtorr.Tracker.TrackerService;
+import gtorr.Util.HashUtils;
+import gtorr.Util.Utils;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -27,11 +29,12 @@ import java.util.*;
 public class Seeder {
 
     private static final HashMap<String, MerkleTree> sFileTreeMap = new HashMap<>();
+
     public static synchronized void cacheFile(String file) throws IOException, NoSuchAlgorithmException {
         if (!sFileTreeMap.containsKey(file)) {
             sFileTreeMap.put(file, new MerkleTree(file, GTorrApplication.s_chunkSize));
         } else {
-            System.out.println("Contains new file");
+//            System.out.println("Contains new file");
         }
     }
 
@@ -41,9 +44,8 @@ public class Seeder {
         List<String> filesToSeed = getFilesToSeed();
         System.out.println(filesToSeed);
         for (String file : filesToSeed) {
-
             Seeder.cacheFile(file);
-            System.out.println(" file - " + file + " hash - " + sFileTreeMap.get(file).getRoot().getHash());
+            System.out.println(" init file - " + file + " hash - " + sFileTreeMap.get(file).getRoot().getHash());
             trackerService.addSeeder(file, sFileTreeMap.get(file).getRoot().getHash(), getPrivateIp() + ":" + GTorrApplication.s_port);
         }
     }
@@ -51,8 +53,8 @@ public class Seeder {
     @Autowired
     public static void addSeeder(TrackerService trackerService, String file) throws IOException, NoSuchAlgorithmException {
         Seeder.cacheFile(file);
-        System.out.println(" Seeding new file - " + file + " hash - " + sFileTreeMap.get(file).getRoot().getHash());
-        trackerService.addSeeder(file, sFileTreeMap.get(file).getRoot().getHash(), getPrivateIp() + ":" +  GTorrApplication.s_port);
+//        System.out.println(" Seeding new file - " + file + " hash - " + sFileTreeMap.get(file).getRoot().getHash());
+        trackerService.addSeeder(file, sFileTreeMap.get(file).getRoot().getHash(), getPrivateIp() + ":");
     }
 
     private static String getPrivateIp() {
@@ -97,8 +99,9 @@ public class Seeder {
 
         MerkleNode node = tree.getLeaves().get(requestParam.getChunkId());
 
-        responseParam.setChunk(node.getChunkBytes());
-        responseParam.setHash(node.getHash());
+        responseParam.setChunk(Utils.getChunk(requestParam.getChunkId() * (GTorrApplication.s_chunkSize), requestParam.getFileName()));
+//        System.out.println("Chunk size" + responseParam.getChunk().length);
+        responseParam.setHash(HashUtils.bytesToHex(responseParam.getChunk()));
         responseParam.setValidityHashList(tree.getValidityHash(node));
         responseParam.setRootHash(tree.getRoot().getHash());
         return responseParam;

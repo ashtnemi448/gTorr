@@ -29,8 +29,8 @@ public class GTorrApplication {
     static private HostService hostService;
     static Environment mEnvironment;
 
-    static public String s_port = "9090";
-    static public int s_chunkSize = 1000000;
+    static public String s_port = "9091";
+    static public int s_chunkSize = 1;
 
     @Autowired
     public GTorrApplication(PersonsDoa personsDoa, TrackerService trackerService, HostService hostService) {

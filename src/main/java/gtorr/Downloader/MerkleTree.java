@@ -135,11 +135,11 @@ public class MerkleTree {
 
         for (byte[] chunk : chunks) {
             byte[] hash = md.digest(chunk);
-            leafNodes.add(new MerkleNode(chunk,HashUtils.bytesToHex(hash)));
+            leafNodes.add(new MerkleNode(HashUtils.bytesToHex(hash)));
         }
 
-        return leafNodes;
-    }
+            return leafNodes;
+        }
 
     public void printNodeDetails(MerkleNode node) {
         if (node != null) {

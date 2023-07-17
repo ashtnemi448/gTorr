@@ -21,6 +21,17 @@ public class Tracker {
     @Column
     private HashSet<String> mHosts = new HashSet<>();
 
+    @Column
+    private String mMerkleTreeRoot;
+
+    public String getMerkelTreeRoot(){
+        return mMerkleTreeRoot;
+    }
+
+    public void setMerkelTreeRoot(String merkleTreeRoot){
+        mMerkleTreeRoot = merkleTreeRoot;
+    }
+
     public void setFileNames(HashSet<String> fileNames) {
         this.mFileNames = fileNames;
     }

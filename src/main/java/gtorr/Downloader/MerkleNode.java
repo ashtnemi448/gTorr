@@ -4,20 +4,11 @@ import java.io.Serializable;
 
 public class MerkleNode implements Serializable {
     private String mHash;
-    private byte[] mChunkBytes;
     private MerkleNode mLeft;
     private MerkleNode mRight;
     private MerkleNode mParent;
 
     public MerkleNode(){}
-
-    public MerkleNode(byte[] chunkBytes,String hash) {
-        this.mChunkBytes = chunkBytes;
-        this.mHash = hash;
-        this.mLeft = null;
-        this.mRight = null;
-        this.mParent = null;
-    }
 
     public MerkleNode(String hash) {
         this.mHash = hash;
@@ -25,14 +16,11 @@ public class MerkleNode implements Serializable {
         this.mRight = null;
         this.mParent = null;
     }
+
     private int mIsLeft;
 
     public int getIsLeft() {
         return mIsLeft;
-    }
-
-    public byte[] getChunkBytes(){
-        return mChunkBytes;
     }
 
     public void setIsLeft(int isLeft) {

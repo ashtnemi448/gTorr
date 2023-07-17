@@ -1,6 +1,7 @@
 package gtorr.Downloader;
 
 import gtorr.GTorrApplication;
+import gtorr.Util.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,14 +87,14 @@ public class ChunkWriter implements Runnable {
         }
     }
 
-    static public InputParams getRandomChunk() {
+    static public InputParams getRandomChunk() throws IOException {
         InputParams params = null;
         if (seederChunkIdQueue.size() == 0) return params;
 
         Integer currChunkId = seederChunkIdQueue.poll();
         params = new InputParams(currChunkId,
                 seederLeaves.get(currChunkId).getHash(),
-                seederLeaves.get(currChunkId).getChunkBytes(),
+                Utils.getChunk(currChunkId * GTorrApplication.s_chunkSize, "r.mp4"),
                 seederMerkleTree.getValidityHash(seederLeaves.get(currChunkId)),
                 seederLeaves.get(currChunkId));
 
@@ -114,12 +115,12 @@ public class ChunkWriter implements Runnable {
             InputParams params = getRandomChunk();
             if (params == null) break;
 
-            if (!ChunkAuthenticator.checkIfChunkIsSane(params.validityHashes, params.node,seederRoot)) {
+            if (!ChunkAuthenticator.checkIfChunkIsSane(params.validityHashes, params.node, seederRoot)) {
                 System.out.println("Invalid Chunk " + params.chunkId + "Chunk Offset " + currChunk);
-            } else{
+            } else {
                 System.out.println("Valid Chunk " + params.chunkId);
             }
-            executor.execute(new ChunkWriter(params.chunkId*s_chunkSize, w, params.chunk));
+            executor.execute(new ChunkWriter(params.chunkId * s_chunkSize, w, params.chunk));
             currChunk += s_chunkSize;
         }
 
