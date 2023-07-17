@@ -1,0 +1,17 @@
+Right now I am storing entire file in my merkel tree
+because of which this app will use RAM as much as sachin uses
+straight drive.
+
+So the issue is while init I am  creating merkel tree for all
+the files which also has byte chunks ie entire file in it
+
+When Download request comes it is querying the tree to get the chunk
+so even if after init we change content of file, merkel tree check would not
+be able to detect that as we are touching actual file only at init
+
+Ideally merkel tree should only hold the metadata ( Ideally we don't even need to
+store the entire merkel tree we just want the root, but lets do that once everything is working )
+
+=============================================================================================
+
+So Simple solution is to not storing chunks in merkel tree and reading it directly from file
