@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.springframework.boot.autoconfigure.web.ServerProperties;
@@ -97,12 +98,10 @@ public class Seeder {
         ResponseParam responseParam = new ResponseParam();
         MerkleTree tree = sFileTreeMap.get(requestParam.getFileName());
 
-        MerkleNode node = tree.getLeaves().get(requestParam.getChunkId());
-
         responseParam.setChunk(Utils.getChunk(requestParam.getChunkId() * (GTorrApplication.s_chunkSize), requestParam.getFileName()));
-//        System.out.println("Chunk size" + responseParam.getChunk().length);
-        responseParam.setHash(HashUtils.bytesToHex(responseParam.getChunk()));
-        responseParam.setValidityHashList(tree.getValidityHash(node));
+        String hashStr = HashUtils.bytesToHex(Utils.getChunk(requestParam.getChunkId(),requestParam.getFileName()));
+        responseParam.setHash(hashStr);
+        responseParam.setValidityHashList(tree.getValidityHash(hashStr));
         responseParam.setRootHash(tree.getRoot().getHash());
         return responseParam;
     }

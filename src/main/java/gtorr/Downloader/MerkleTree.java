@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -19,6 +20,7 @@ public class MerkleTree {
     private int mChunkSize;
     List<MerkleNode> mLeafNodes;
     private List<MerkleNode>  mLastLeaf ;
+    private HashMap<String,MerkleNode> mHashNodeMap = new HashMap<>();
 
     public MerkleTree(String filePath, int chunkSize) throws IOException, NoSuchAlgorithmException {
         this.mLastLeaf = new ArrayList<>();;
@@ -131,11 +133,13 @@ public class MerkleTree {
 
     public List<MerkleNode> createLeafNodes(List<byte[]> chunks) throws NoSuchAlgorithmException {
         List<MerkleNode> leafNodes = new ArrayList<>();
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
+
 
         for (byte[] chunk : chunks) {
-            byte[] hash = md.digest(chunk);
-            leafNodes.add(new MerkleNode(HashUtils.bytesToHex(hash)));
+            String hashStr = HashUtils.bytesToHex(chunk);
+            MerkleNode node  = new MerkleNode(hashStr);
+            leafNodes.add(node);
+            mHashNodeMap.put(hashStr,node);
         }
 
             return leafNodes;
@@ -162,7 +166,7 @@ public class MerkleTree {
     void print(MerkleNode node) throws NoSuchAlgorithmException {
         if (node == null) return;
         print(node.getLeft());
-        List<ValidityHash> validityHash = getValidityHash(node);
+        List<ValidityHash> validityHash = getValidityHash(node.getHash());
 
         boolean result = verifyTree(validityHash, node);
         if (result)
@@ -172,8 +176,13 @@ public class MerkleTree {
         print(node.getRight());
     }
 
-    public List<ValidityHash> getValidityHash(MerkleNode node) {
+    public List<ValidityHash> getValidityHash(String hash) {
+
         List<ValidityHash> validityHashes = new ArrayList<>();
+        if(mHashNodeMap.containsKey(hash) == false){
+            return validityHashes;
+        }
+        MerkleNode node = mHashNodeMap.get(hash);
         if (getBrother(node) != null)
             validityHashes.add(new ValidityHash(getBrother(node).getHash(),getBrother(node).getIsLeft()));
 
@@ -210,7 +219,7 @@ public class MerkleTree {
         MerkleTree merkleTree = new MerkleTree("r.mp4", GTorrApplication.s_chunkSize);
         List<MerkleNode> leaves = merkleTree.getLeaves();
         for (int i = 0; i < leaves.size(); i++) {
-            if (!merkleTree.verifyTree(merkleTree.getValidityHash(leaves.get(i)),leaves.get(i))) {
+            if (!merkleTree.verifyTree(merkleTree.getValidityHash(leaves.get(i).getHash()),leaves.get(i))) {
                 System.out.println("Invalid Chunk " + i);
             } else {
                 System.out.println("Valid Chunk " + i);

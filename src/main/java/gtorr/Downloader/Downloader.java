@@ -49,7 +49,6 @@ public class Downloader {
             requestParam.setFileName(fileName);
 
             String host = Utils.getRandomElementFromHashSet(hosts);
-//            System.out.println("Downloading chunk " + i + " from Host - " + host);
             requestParam.setHost(host);
 
             executor.execute(new DownloadExecutor(requestParam));

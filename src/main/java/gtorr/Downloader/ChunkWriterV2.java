@@ -30,16 +30,6 @@ public class ChunkWriterV2 {
     }
 
     public synchronized void writeChunk() throws NoSuchAlgorithmException {
-        MerkleNode curr =  new MerkleNode(mResponseParam.getHash());
-        MerkleNode root = new MerkleNode(mResponseParam.getRootHash());
-
-//        System.out.println("Curr "+ curr.getHash());
-//
-//        System.out.println("Chunk "+ new String(mResponseParam.getChunk()));
-//        for(ValidityHash x : mResponseParam.getValidityHashList()){
-//            System.out.println("val " + x.getHash());
-//        }
-//        System.out.println("");
         if (!ChunkAuthenticator.checkIfChunkIsSane(mResponseParam.getValidityHashList(), new MerkleNode(mResponseParam.getHash()), new MerkleNode(mResponseParam.getRootHash()))) {
             System.out.println("Invalid Chunk " + mRequestParam.getChunkId());
             return;

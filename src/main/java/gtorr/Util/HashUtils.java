@@ -15,7 +15,10 @@ public class HashUtils {
         return HashUtils.bytesToHex(hash);
     }
 
-    public static String bytesToHex(byte[] bytes) {
+    public static String bytesToHex(byte[] chunk) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] bytes = md.digest(chunk);
+
         StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {
             sb.append(String.format("%02x", b));

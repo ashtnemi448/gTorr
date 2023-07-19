@@ -95,7 +95,7 @@ public class ChunkWriter implements Runnable {
         params = new InputParams(currChunkId,
                 seederLeaves.get(currChunkId).getHash(),
                 Utils.getChunk(currChunkId * GTorrApplication.s_chunkSize, "r.mp4"),
-                seederMerkleTree.getValidityHash(seederLeaves.get(currChunkId)),
+                seederMerkleTree.getValidityHash(seederLeaves.get(currChunkId).getHash()),
                 seederLeaves.get(currChunkId));
 
         return params;

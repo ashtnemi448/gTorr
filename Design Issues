@@ -15,3 +15,9 @@ store the entire merkel tree we just want the root, but lets do that once everyt
 =============================================================================================
 
 So Simple solution is to not storing chunks in merkel tree and reading it directly from file
+
+============================================================================================
+
+So faced one more issue that I was getting chunk hash from the tree, I have to getHash from chunk
+got from file itself, because after init and tree is created and a chunk is tampered we would need to
+get new updated hash so as to get empty validity hashes from tree for this invalid chunk
