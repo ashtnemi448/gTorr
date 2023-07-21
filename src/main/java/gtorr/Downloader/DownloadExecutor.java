@@ -2,16 +2,21 @@ package gtorr.Downloader;
 
 import gtorr.Seeder.ResponseParam;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.util.Pair;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 
 public class DownloadExecutor implements Runnable {
 
     private RequestParam mRequestParam;
+    List<RequestParam> mFailedDownload;
 
-    public DownloadExecutor(RequestParam requestParam) {
+    public DownloadExecutor(RequestParam requestParam, List<RequestParam> failedDownload) {
         this.mRequestParam = requestParam;
+        this.mFailedDownload = failedDownload;
     }
 
     @Override
@@ -37,7 +42,7 @@ public class DownloadExecutor implements Runnable {
             ResponseParam responsePayload = response.getBody();
             ChunkWriterV2 chunkWriterV2h;
             try {
-                chunkWriterV2h = new ChunkWriterV2(responsePayload, mRequestParam);
+                chunkWriterV2h = new ChunkWriterV2(responsePayload, mRequestParam , mFailedDownload);
                 chunkWriterV2h.writeChunk();
             } catch (Exception e) {
                 try {

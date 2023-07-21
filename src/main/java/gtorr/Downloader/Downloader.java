@@ -5,16 +5,18 @@ import gtorr.Seeder.Seeder;
 import gtorr.Tracker.TrackerService;
 import gtorr.Util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashSet;;
-import java.util.Iterator;
+import java.util.*;
+;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 public class Downloader {
 
     TrackerService mTrackerService;
+
 
     @Autowired
     Downloader(TrackerService trackerService) {
@@ -40,7 +43,7 @@ public class Downloader {
 
     private void startDownload(String fileName, String fileHash, int totalChunks, HashSet<String> hosts) throws IOException, NoSuchAlgorithmException, InterruptedException {
         ExecutorService executor = Executors.newFixedThreadPool(12);
-
+        List<RequestParam> failedDownload = new ArrayList<>();
         for (int i = 0; i < totalChunks; i++) {
 
             RequestParam requestParam = new RequestParam();
@@ -51,13 +54,58 @@ public class Downloader {
             String host = Utils.getRandomElementFromHashSet(hosts);
             requestParam.setHost(host);
 
-            executor.execute(new DownloadExecutor(requestParam));
+            executor.execute(new DownloadExecutor(requestParam,failedDownload));
         }
         executor.shutdown();
         // Wait for all tasks to complete
         while (!executor.isTerminated()) {}
 
-        // Seed the newly downloaded file
-        Seeder.addSeeder(mTrackerService,"Torrent-"+fileName);
+        ExecutorService retryExecutor = Executors.newFixedThreadPool(12);
+        HashMap<String, Integer> hostRetriesMap = new HashMap<>();
+        System.out.println("Invalid Chunks " + failedDownload);
+
+        while(!failedDownload.isEmpty() && !hosts.isEmpty()){
+            RequestParam req = failedDownload.get(0);
+            failedDownload.remove(req);
+            System.out.println("Invalid Chunks new " + failedDownload);
+            if(hostRetriesMap.containsKey(req.getHost())
+                    && hostRetriesMap.get(req.getHost()) >= GTorrApplication.s_maxRetry){
+                System.out.println("Removing Host "+ req.getHost());
+                hosts.remove(req.getHost());
+                Runnable threadCode = () -> {
+                    mTrackerService.removeHost(req.getFileHash(), req.getHost());
+                };
+                Thread thread = new Thread(threadCode);
+                thread.start();
+            }
+
+            int retryCount = 0 ;
+            if(hostRetriesMap.containsKey(req.getHost())){
+                retryCount += hostRetriesMap.get(req.getHost());
+            }
+            hostRetriesMap.put(req.getHost(), retryCount);
+
+            String newHost = req.getHost();
+            while(newHost == req.getHost() && !(hosts.size() == 1 && req.getHost() == newHost) ){
+               newHost =  Utils.getRandomElementFromHashSet(hosts);
+            }
+            req.setHost(newHost);
+            System.out.println("Trying to download "+ req.getChunkId() + "from "+req.getHost());
+            retryExecutor.execute(new DownloadExecutor(req,failedDownload));
+        }
+        retryExecutor.shutdown();
+        // Wait for all tasks to complete
+        while (!retryExecutor.isTerminated()) {}
+
+        if(failedDownload.isEmpty()) {
+            // Seed the newly downloaded file
+            Seeder.addSeeder(mTrackerService, "Torrent-" + fileName);
+        } else {
+            System.out.println("Download failed");
+            File fileToDelete = new File("Torrent-" + fileName);
+            if (fileToDelete.exists()) {
+                boolean deleted = fileToDelete.delete();
+            }
+        }
     }
 }

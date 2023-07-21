@@ -1,3 +1,21 @@
+Why am I choosing merkel tree and making my life difficult ?
+
+Bram cohen was very lazy when he put in very simple mechanism for chunk validity :P
+
+Torrent file has all the hashes for all the chunks, thats how a downloader can see
+if his downloaded chunk is valid or not
+
+But this is very inefficient, as your file size increases it would also increase torrent
+file size, which will increase storage cost, and it is very lazy writing .
+
+So we come with Merkle tree so now we just need to store root of merkel tree in our
+torrent file ( i am not using a .torrent mumbo jumbo, my metadata is stored in db like a caveman)
+
+and while seeding uploader sends list of validityHashes ( see code for details ) along with chunk
+using it we check if we can get root hash if so then chunk is valid
+
+==========================================================================================
+
 Right now I am storing entire file in my merkel tree
 because of which this app will use RAM as much as sachin uses
 straight drive.

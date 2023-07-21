@@ -27,6 +27,14 @@ public class TrackerService {
         return mTrackerRepository.findById(fileCkSum).get().getFileSize();
     }
 
+    public void removeHost(String fileHash, String host) {
+        Tracker tracker = mTrackerRepository.findById(fileHash).orElse(null);
+        if (tracker != null) {
+            tracker.getHosts().remove(host);
+            mTrackerRepository.save(tracker);
+        }
+    }
+
     public void addSeeder(String file, String fileHash, String host) throws IOException {
         Tracker tracker = mTrackerRepository.findById(fileHash).orElse(null);
 

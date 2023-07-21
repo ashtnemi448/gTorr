@@ -2,16 +2,13 @@ package gtorr.Downloader;
 
 import gtorr.GTorrApplication;
 import gtorr.Seeder.ResponseParam;
+import org.springframework.data.util.Pair;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
 
 public class ChunkWriterV2 {
 
@@ -19,19 +16,23 @@ public class ChunkWriterV2 {
     RandomAccessFile mWriteFile;
     ResponseParam mResponseParam;
     RequestParam mRequestParam;
+    List<RequestParam> mFailedDownload;
 
-    public ChunkWriterV2(ResponseParam responseParam, RequestParam requestParam) throws FileNotFoundException {
+
+    public ChunkWriterV2(ResponseParam responseParam, RequestParam requestParam, List<RequestParam> failedDownload) throws FileNotFoundException {
         if (mFileHashMap.get(requestParam.getFileName()) == null) {
             mFileHashMap.put(requestParam.getFileName(), new RandomAccessFile(new File("Torrent-" + requestParam.getFileName()), "rw"));
         }
         this.mWriteFile = mFileHashMap.get(requestParam.getFileName());
         this.mResponseParam = responseParam;
         this.mRequestParam = requestParam;
+        this.mFailedDownload = failedDownload;
     }
 
     public synchronized void writeChunk() throws NoSuchAlgorithmException {
         if (!ChunkAuthenticator.checkIfChunkIsSane(mResponseParam.getValidityHashList(), new MerkleNode(mResponseParam.getHash()), new MerkleNode(mResponseParam.getRootHash()))) {
             System.out.println("Invalid Chunk " + mRequestParam.getChunkId());
+            mFailedDownload.add(mRequestParam);
             return;
         }
 

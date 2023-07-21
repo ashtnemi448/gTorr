@@ -31,6 +31,7 @@ public class GTorrApplication {
 
     static public String s_port = "9091";
     static public int s_chunkSize = 1;
+    static public int s_maxRetry = 5;
 
     @Autowired
     public GTorrApplication(PersonsDoa personsDoa, TrackerService trackerService, HostService hostService) {
