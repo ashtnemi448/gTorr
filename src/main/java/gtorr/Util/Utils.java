@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 
@@ -30,9 +31,14 @@ public class Utils {
         return numOfChunks;
     }
 
-    public static byte[] getChunk(int offset, String fileName) throws IOException {
 
-        RandomAccessFile file = new RandomAccessFile(fileName, "r");
+    static HashMap<String,RandomAccessFile> fileHashMap = new HashMap<>();
+    public synchronized static byte[] getChunk(int offset, String fileName) throws IOException {
+
+        if(!fileHashMap.containsKey(fileName)){
+            fileHashMap.put(fileName,new RandomAccessFile(fileName, "r"));
+        }
+        RandomAccessFile file = fileHashMap.get(fileName);
 
         int chunkToRead = GTorrApplication.s_chunkSize;
         if(offset + GTorrApplication.s_chunkSize >= file.length()){

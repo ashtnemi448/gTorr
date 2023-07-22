@@ -98,8 +98,9 @@ public class Seeder {
         ResponseParam responseParam = new ResponseParam();
         MerkleTree tree = sFileTreeMap.get(requestParam.getFileName());
 
-        responseParam.setChunk(Utils.getChunk(requestParam.getChunkId() * (GTorrApplication.s_chunkSize), requestParam.getFileName()));
-        String hashStr = HashUtils.bytesToHex(Utils.getChunk(requestParam.getChunkId(),requestParam.getFileName()));
+        byte[] chunk = Utils.getChunk(requestParam.getChunkId() * (GTorrApplication.s_chunkSize), requestParam.getFileName());
+        responseParam.setChunk(chunk);
+        String hashStr = HashUtils.bytesToHex(chunk);
         responseParam.setHash(hashStr);
         responseParam.setValidityHashList(tree.getValidityHash(hashStr));
         responseParam.setRootHash(tree.getRoot().getHash());
