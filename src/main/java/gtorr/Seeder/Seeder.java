@@ -55,7 +55,7 @@ public class Seeder {
     public static void addSeeder(TrackerService trackerService, String file) throws IOException, NoSuchAlgorithmException {
         Seeder.cacheFile(file);
 //        System.out.println(" Seeding new file - " + file + " hash - " + sFileTreeMap.get(file).getRoot().getHash());
-        trackerService.addSeeder(file, sFileTreeMap.get(file).getRoot().getHash(), getPrivateIp() + ":");
+        trackerService.addSeeder(file, sFileTreeMap.get(file).getRoot().getHash(), getPrivateIp() + ":" + GTorrApplication.s_port);
     }
 
     private static String getPrivateIp() {

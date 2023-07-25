@@ -38,6 +38,8 @@ public class Downloader {
 
         HashSet<String> hosts = mTrackerService.getHosts(fileHash);
         int totalChunks = Math.toIntExact(mTrackerService.getFileSize(fileHash));
+        System.out.println(hosts);
+
         startDownload(fileName, fileHash, totalChunks, hosts);
     }
 
@@ -53,7 +55,7 @@ public class Downloader {
 
             String host = Utils.getRandomElementFromHashSet(hosts);
             requestParam.setHost(host);
-
+            System.out.println("Origi "+ host);
             executor.execute(new DownloadExecutor(requestParam,failedDownload));
         }
         executor.shutdown();
@@ -65,13 +67,18 @@ public class Downloader {
         System.out.println("Invalid Chunks " + failedDownload);
 
         while(!failedDownload.isEmpty() && !hosts.isEmpty()){
+
             RequestParam req = failedDownload.get(0);
+            if(hosts.size() == 1 && req.getHost().equals(Utils.getRandomElementFromHashSet(hosts)))break;
             failedDownload.remove(req);
             System.out.println("Invalid Chunks new " + failedDownload);
+
+
             if(hostRetriesMap.containsKey(req.getHost())
                     && hostRetriesMap.get(req.getHost()) >= GTorrApplication.s_maxRetry){
                 System.out.println("Removing Host "+ req.getHost());
                 hosts.remove(req.getHost());
+                hostRetriesMap.remove(req.getHost());
                 Runnable threadCode = () -> {
                     mTrackerService.removeHost(req.getFileHash(), req.getHost());
                 };
@@ -79,18 +86,19 @@ public class Downloader {
                 thread.start();
             }
 
-            int retryCount = 0 ;
-            if(hostRetriesMap.containsKey(req.getHost())){
-                retryCount += hostRetriesMap.get(req.getHost());
-            }
-            hostRetriesMap.put(req.getHost(), retryCount);
 
-            String newHost = req.getHost();
-            while(newHost == req.getHost() && !(hosts.size() == 1 && req.getHost() == newHost) ){
-               newHost =  Utils.getRandomElementFromHashSet(hosts);
+            if(hosts.contains(req.getHost())) {
+                int retryCount = 1;
+                if (hostRetriesMap.containsKey(req.getHost())) {
+                    retryCount = hostRetriesMap.get(req.getHost()) + 1;
+                }
+                hostRetriesMap.put(req.getHost(), retryCount);
+                System.out.println("rety" + hostRetriesMap);
+
             }
+            String newHost = Utils.getRandomElementFromHashSet(hosts);
             req.setHost(newHost);
-            System.out.println("Trying to download "+ req.getChunkId() + "from "+req.getHost());
+            System.out.println("Trying to download "+ req.getChunkId() + "from "+newHost);
             retryExecutor.execute(new DownloadExecutor(req,failedDownload));
         }
         retryExecutor.shutdown();
