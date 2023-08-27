@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 public class Downloader {
 
     TrackerService mTrackerService;
-
+    static long start;
 
     @Autowired
     Downloader(TrackerService trackerService) {
@@ -35,7 +35,7 @@ public class Downloader {
     @RequestMapping(value = "download/{file}/{fileCkSum}")
 
     public void download(@PathVariable("fileCkSum") String fileHash, @PathVariable("file") String fileName) throws IOException, NoSuchAlgorithmException, InterruptedException {
-
+        start = System.currentTimeMillis();
         HashSet<String> hosts = mTrackerService.getHosts(fileHash);
         int totalChunks = Math.toIntExact(mTrackerService.getFileSize(fileHash));
         System.out.println(hosts);
@@ -65,7 +65,10 @@ public class Downloader {
         ExecutorService retryExecutor = Executors.newFixedThreadPool(12);
         HashMap<String, Integer> hostRetriesMap = new HashMap<>();
         System.out.println("Invalid Chunks " + failedDownload);
-
+        long end = System.currentTimeMillis();
+        //finding the time difference and converting it into seconds
+        float sec = (end - start) / 1000F;
+        System.out.println("Time taken  " + sec + " seconds");
         while(!failedDownload.isEmpty() && !hosts.isEmpty()){
 
             RequestParam req = failedDownload.get(0);

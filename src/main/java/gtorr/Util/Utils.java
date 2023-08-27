@@ -26,8 +26,7 @@ public class Utils {
 
     public static Long getNumberOfChunks(String file) throws IOException {
         Path path = Path.of(file);
-        byte[] fileData = Files.readAllBytes(path);
-        Long numOfChunks = (long) Math.ceil((double) fileData.length / GTorrApplication.s_chunkSize);
+        Long numOfChunks = (long) Math.ceil((double) Files.size(path) / GTorrApplication.s_chunkSize);
         return numOfChunks;
     }
 

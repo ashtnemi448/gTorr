@@ -113,19 +113,26 @@ public class MerkleTree {
     }
 
     private List<byte[]> divideFileIntoChunks(String filePath) throws IOException {
-        Path path = Path.of(filePath);
-        byte[] fileData = Files.readAllBytes(path);
-        int numOfChunks = Math.toIntExact(Utils.getNumberOfChunks(filePath));
+//        Path path = Path.of(filePath);
+//        byte[] fileData = Files.readAllBytes(path);
+//        int numOfChunks = Math.toIntExact(Utils.getNumberOfChunks(filePath));
 
         int chunkSize = mChunkSize;
         List<byte[]> chunks = new ArrayList<>();
 
-        for (int i = 0; i < numOfChunks; i++) {
-            int start = i * chunkSize;
-            int length = Math.min(chunkSize, fileData.length - start);
-            byte[] chunk = new byte[length];
-            System.arraycopy(fileData, start, chunk, 0, length);
+        byte[] chunk = new byte[chunkSize];
+        FileInputStream fin = new FileInputStream(filePath);
+        BufferedInputStream bin = new BufferedInputStream(fin);
+
+        while (bin.available() > 0) {
+            if(bin.available() <=  mChunkSize ){
+                chunk = new byte[bin.available()];
+                bin.read(chunk,0, bin.available());
+            } else {
+                bin.read(chunk, 0, mChunkSize);
+            }
             chunks.add(chunk);
+            chunk = new byte[chunkSize];
         }
 
         return chunks;
@@ -227,3 +234,15 @@ public class MerkleTree {
         }
     }
 }
+/*
+ init file - Design Issues hash - 7ac93d5d9aba137f704e767753ff1fdb22e2fd582124843911b19aa01bbbd96f
+ init file - HELP.md hash - 639d766d7c9cac900563ff1b5eb8176093da9af2fed86fe45d23144ae3007181
+ init file - gTorr.iml hash - e983ca85315d2d3a6a25f6dd157f6851f0262081d1b60054936eed574fba171f
+ init file - write.txt hash - ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
+ init file - mvnw.cmd hash - 6d19e53372cb157e46f62b648832d34ab12f0e6b6b9f5f10b643f1f010bcc4c9
+ init file - sample.mp4 hash - d964d257227a57b675c7f07687ded8c27bcf2997381ca335667d13e03d59da5c
+ init file - pom.xml hash - 59494e4375d96f719280e07beb94ee9d321508fe48564b88b6bedd0ca81f1d8e
+ init file - smallTest.txt hash - 88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589
+ init file - read.txt hash - 9bdff4be406b010eaa66ab32e8d0e0b9253935c7b486eec8f651cccb50379c0f
+ init file - mvnw hash - 4591ada725d05dbb596064ff1540d673a6252036699596d279ce8117606e823f
+ */
