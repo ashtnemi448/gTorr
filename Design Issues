@@ -1,7 +1,5 @@
 Why am I choosing merkel tree and making my life difficult ?
 
-Bram cohen was very lazy when he put in very simple mechanism for chunk validity :P
-
 Torrent file has all the hashes for all the chunks, thats how a downloader can see
 if his downloaded chunk is valid or not
 
@@ -39,3 +37,10 @@ So Simple solution is to not storing chunks in merkel tree and reading it direct
 So faced one more issue that I was getting chunk hash from the tree, I have to getHash from chunk
 got from file itself, because after init and tree is created and a chunk is tampered we would need to
 get new updated hash so as to get empty validity hashes from tree for this invalid chunk
+
+==================================================================================================
+
+For a file of around 1 GB we were keeping 122MB in memory in form of merkel tree, imagine many big
+files which are seeding, persist merkel tree on disk
+
+==================================================================================================

@@ -33,7 +33,6 @@ public class Downloader {
     }
 
     @RequestMapping(value = "download/{file}/{fileCkSum}")
-
     public void download(@PathVariable("fileCkSum") String fileHash, @PathVariable("file") String fileName) throws IOException, NoSuchAlgorithmException, InterruptedException {
         start = System.currentTimeMillis();
         HashSet<String> hosts = mTrackerService.getHosts(fileHash);
@@ -46,6 +45,7 @@ public class Downloader {
     private void startDownload(String fileName, String fileHash, int totalChunks, HashSet<String> hosts) throws IOException, NoSuchAlgorithmException, InterruptedException {
         ExecutorService executor = Executors.newFixedThreadPool(12);
         List<RequestParam> failedDownload = new ArrayList<>();
+
         for (int i = 0; i < totalChunks; i++) {
 
             RequestParam requestParam = new RequestParam();
@@ -55,7 +55,6 @@ public class Downloader {
 
             String host = Utils.getRandomElementFromHashSet(hosts);
             requestParam.setHost(host);
-            System.out.println("Origi "+ host);
             executor.execute(new DownloadExecutor(requestParam,failedDownload));
         }
         executor.shutdown();
@@ -66,11 +65,11 @@ public class Downloader {
         HashMap<String, Integer> hostRetriesMap = new HashMap<>();
         System.out.println("Invalid Chunks " + failedDownload);
         long end = System.currentTimeMillis();
-        //finding the time difference and converting it into seconds
         float sec = (end - start) / 1000F;
-        System.out.println("Time taken  " + sec + " seconds");
-        while(!failedDownload.isEmpty() && !hosts.isEmpty()){
+        System.out.println("Time taken to download " + sec + " seconds");
 
+        // Retry corrupt chunk redownload and delete malicious tracker from tracker
+        while(!failedDownload.isEmpty() && !hosts.isEmpty()){
             RequestParam req = failedDownload.get(0);
             if(hosts.size() == 1 && req.getHost().equals(Utils.getRandomElementFromHashSet(hosts)))break;
             failedDownload.remove(req);
@@ -89,14 +88,13 @@ public class Downloader {
                 thread.start();
             }
 
-
             if(hosts.contains(req.getHost())) {
                 int retryCount = 1;
                 if (hostRetriesMap.containsKey(req.getHost())) {
                     retryCount = hostRetriesMap.get(req.getHost()) + 1;
                 }
                 hostRetriesMap.put(req.getHost(), retryCount);
-                System.out.println("rety" + hostRetriesMap);
+                System.out.println("Retry" + hostRetriesMap);
 
             }
             String newHost = Utils.getRandomElementFromHashSet(hosts);
@@ -109,8 +107,8 @@ public class Downloader {
         while (!retryExecutor.isTerminated()) {}
 
         if(failedDownload.isEmpty()) {
-            // Seed the newly downloaded file
-            Seeder.addSeeder(mTrackerService, "Torrent-" + fileName);
+           // Seed the newly downloaded file
+            Seeder.addSeeder(mTrackerService, "Torrent-" + fileName ,fileHash );
         } else {
             System.out.println("Download failed");
             File fileToDelete = new File("Torrent-" + fileName);

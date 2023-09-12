@@ -1,28 +1,29 @@
 package gtorr.Downloader;
 
-import gtorr.Util.HashUtils;
-
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 public class ChunkAuthenticator {
 
-    public static boolean checkIfChunkIsSane(List<ValidityHash> validityHashes, MerkleNode node, MerkleNode root) throws NoSuchAlgorithmException {
-        MerkleNode currNode = node;
+    public static boolean checkIfChunkIsSane(List<ValidityHash> validityHashes, String file, byte[] chunk, String fileRoot) throws NoSuchAlgorithmException, IOException {
+        if (validityHashes.size() == 0) return true;
+        String actualRoot = PersistentMerkelTree.getHash(new String(chunk));
+
+        String vRoot = "";
         for (ValidityHash validityHash : validityHashes) {
-            if (validityHash != null && validityHash.getHash().equals(root.getHash())) {
+            vRoot = validityHash.getHash();
+            if (validityHash == null && fileRoot.equals(actualRoot)) {
                 break;
             }
-            String parentHash = "";
             String combinedHash;
             if (validityHash.getIsLeft() == 0) {
-                combinedHash = HashUtils.concatenateHashes(currNode.getHash(), validityHash.getHash());
+                combinedHash = PersistentMerkelTree.getHash(actualRoot + vRoot);
             } else {
-                combinedHash = HashUtils.concatenateHashes(validityHash.getHash(), currNode.getHash());
+                combinedHash = PersistentMerkelTree.getHash(vRoot + actualRoot);
             }
-            parentHash = combinedHash;
-            currNode = new MerkleNode(parentHash);
+            actualRoot = combinedHash;
         }
-        return currNode.getHash().equals(root.getHash());
+        return fileRoot.equals(actualRoot);
     }
 }

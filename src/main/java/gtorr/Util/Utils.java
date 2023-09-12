@@ -41,9 +41,7 @@ public class Utils {
 
         int chunkToRead = GTorrApplication.s_chunkSize;
         if(offset + GTorrApplication.s_chunkSize >= file.length()){
-//            System.out.println("Hello");
             chunkToRead = (int) (file.length() - offset);
-//            System.out.println("Chunk rem "  + chunkToRead);
         }
         file.seek(offset);
 

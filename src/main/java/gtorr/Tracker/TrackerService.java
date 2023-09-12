@@ -4,6 +4,7 @@ import gtorr.Util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -36,11 +37,14 @@ public class TrackerService {
     }
 
     public void addSeeder(String file, String fileHash, String host) throws IOException {
+
+        File f = new File(file);
+        String fileName = f.getName();
         Tracker tracker = mTrackerRepository.findById(fileHash).orElse(null);
 
         if (tracker != null) {
             tracker.getHosts().add(host);
-            tracker.getFileNames().add(file);
+            tracker.getFileNames().add(fileName);
             mTrackerRepository.save(tracker);
         } else {
             Tracker newTracker = new Tracker();
@@ -49,7 +53,7 @@ public class TrackerService {
             Long numOfChunks = Utils.getNumberOfChunks(file);
 
             newTracker.setFileSize(numOfChunks);
-            newTracker.getFileNames().add(file);
+            newTracker.getFileNames().add(fileName);
 
             newTracker.getHosts().add(host);
             mTrackerRepository.save(newTracker);
