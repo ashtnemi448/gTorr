@@ -10,7 +10,6 @@ public class HashUtils {
     public static String concatenateHashes(String leftHash, String rightHash) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         String concatString = leftHash+ rightHash;
-
         byte[] hash = md.digest(concatString.getBytes());
         return HashUtils.bytesToHex(hash);
     }
